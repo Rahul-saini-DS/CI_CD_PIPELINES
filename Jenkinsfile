@@ -4,9 +4,12 @@ pipeline {
 
     // Define tools if you have configured them in Jenkins (Optional, assuming PATH works)
 environment {
-        PATH = "C:\\Program Files\\Git\\cmd;${env.PATH}"
+        // 1. Git Path (Standard)
+        // 2. Python Main Folder (We stripped 'python.exe' from your path)
+        // 3. Python Scripts Folder (Where 'pip' lives)
+        PATH = "C:\\Program Files\\Git\\cmd;C:\\Users\\rahul\\AppData\\Local\\Programs\\Python\\Python310;C:\\Users\\rahul\\AppData\\Local\\Programs\\Python\\Python310\\Scripts;${env.PATH}"
         
-        // THE FIX: Tell Node.js to use legacy OpenSSL providers so the build doesn't crash
+        // Keep the Node fix
         NODE_OPTIONS = "--openssl-legacy-provider"
     }
 
