@@ -3,9 +3,11 @@ pipeline {
     agent any
 
     // Define tools if you have configured them in Jenkins (Optional, assuming PATH works)
-    environment {
-        // We set the path just in case, or rely on system PATH
-        PATH = "${env.PATH}" 
+environment {
+        PATH = "C:\\Program Files\\Git\\cmd;${env.PATH}"
+        
+        // THE FIX: Tell Node.js to use legacy OpenSSL providers so the build doesn't crash
+        NODE_OPTIONS = "--openssl-legacy-provider"
     }
 
     stages {
