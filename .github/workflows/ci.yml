@@ -1,17 +1,18 @@
-name: Script-Based Pipeline
+name: Windows EXE Build
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-windows-exe:
+    runs-on: windows-latest  # <--- CHANGED: Now using a Windows Server!
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # We still need to install the languages (Python & Node)
+      # 1. Setup Environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -22,6 +23,34 @@ jobs:
         with:
           node-version: '16'
 
-      # THE NEW PART: Just one command!
-      - name: Run Build Script
-        run: ./build.sh
+      # 2. Build the Frontend (React)
+      - name: Build React Frontend
+        shell: bash  # We force Bash so your commands work like on Linux
+        run: |
+          npm install
+          npm run build
+          # Result: Creates a 'build' folder
+
+      # 3. Build the Backend & Create EXE
+      - name: Create EXE with PyInstaller
+        shell: bash
+        run: |
+          # Install dependencies
+          if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
+          pip install pyinstaller
+
+          # THE MAGIC COMMAND:
+          # --onefile: Make it a single .exe file
+          # --name: Call it "MyApp"
+          # --add-data: Include the React 'build' folder inside the .exe
+          # api/api.py: Your main python file
+          
+          # Note: The separator ';' is used for Windows paths in PyInstaller
+          pyinstaller --onefile --name MyApp --add-data "build;build" api/api.py
+
+      # 4. Save the Result
+      - name: Upload EXE Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Application
+          path: dist/MyApp.exe
